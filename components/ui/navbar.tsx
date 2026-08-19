@@ -15,7 +15,7 @@ export async function Navbar() {
       .from('profiles')
       .select('name')
       .eq('id', user.id)
-      .single()
+      .single() as any
     
     if (profile) userName = profile.name
   }
