@@ -13,7 +13,15 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: [
+    '@fullcalendar/common',
+    '@fullcalendar/core',
+    '@fullcalendar/react',
+    '@fullcalendar/daygrid',
+    '@fullcalendar/list',
+    '@fullcalendar/timegrid',
+    '@fullcalendar/interaction'
+  ]
 };
 
 export default withPWA(nextConfig);

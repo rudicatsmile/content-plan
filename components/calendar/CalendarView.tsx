@@ -51,7 +51,12 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
   }
 
   const handleDatesSet = (info: any) => {
-    setDateRange({ start: info.start, end: info.end })
+    setDateRange(prev => {
+      if (prev.start?.getTime() === info.start.getTime() && prev.end?.getTime() === info.end.getTime()) {
+        return prev
+      }
+      return { start: info.start, end: info.end }
+    })
   }
 
   return (

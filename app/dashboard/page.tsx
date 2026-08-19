@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CalendarSidebar } from '@/components/calendar/CalendarSidebar'
-import { CalendarView } from '@/components/calendar/CalendarView'
+import { CalendarWrapper } from '@/components/calendar/CalendarWrapper'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -27,7 +27,7 @@ export default async function DashboardPage() {
       <div className="flex flex-col md:flex-row gap-6">
         <CalendarSidebar userRole={profile.role} />
         <div className="flex-1 overflow-hidden">
-          <CalendarView userRole={profile.role} userLembagaId={profile.lembaga_id} />
+          <CalendarWrapper userRole={profile.role} userLembagaId={profile.lembaga_id} />
         </div>
       </div>
     </div>
