@@ -10,14 +10,18 @@ export async function Navbar() {
   const { data: { user } } = await supabase.auth.getUser()
   
   let userName = ''
+  let lembagaName = ''
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('name')
+      .select('full_name, role, lembaga(name)')
       .eq('id', user.id)
       .single() as any
     
-    if (profile) userName = profile.name
+    if (profile) {
+      userName = profile.full_name || user.email?.split('@')[0] || 'User'
+      lembagaName = profile.lembaga?.name || (profile.role === 'super_admin' ? 'Super Admin' : profile.role === 'media_admin' ? 'Media Admin' : profile.role === 'pimpinan' ? 'Pimpinan' : '')
+    }
   }
 
   return (
@@ -31,9 +35,9 @@ export async function Navbar() {
           </div>
           <div className="flex items-center gap-4">
             {userName && (
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full">
-                <User className="w-4 h-4" />
-                {userName}
+              <div className="flex flex-col items-end mr-2">
+                <span className="text-sm font-semibold text-slate-800">{userName}</span>
+                {lembagaName && <span className="text-xs text-slate-500">{lembagaName}</span>}
               </div>
             )}
             <NotificationBell />
