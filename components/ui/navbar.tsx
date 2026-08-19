@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { logout } from '@/app/(auth)/login/actions'
+import { Button } from '@/components/ui/button'
+import { LogOut } from 'lucide-react'
 
 export function Navbar() {
   return (
@@ -13,6 +16,12 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-4">
             <NotificationBell />
+            <form action={logout}>
+              <Button variant="ghost" size="sm" type="submit" className="text-gray-600 hover:text-red-600 hover:bg-red-50">
+                <LogOut className="w-4 h-4 mr-2" />
+                Keluar
+              </Button>
+            </form>
           </div>
         </div>
       </div>
