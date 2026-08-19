@@ -8,19 +8,24 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) throw new Error('Unauthorized')
+  try {
+    if (!user) return { error: 'Unauthorized' }
 
-  // Check role
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single() as any
-  if (!profile || profile.role !== 'media_admin') {
-    throw new Error('Only media admin can review submissions')
-  }
+    // Check role
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single() as any
+    if (!profile || profile.role !== 'media_admin') {
+      return { error: 'Only media admin can review submissions' }
+    }
 
-  // Create admin client to bypass RLS for this specific update
-  const supabaseAdmin = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { error: 'Konfigurasi Server bermasalah: SUPABASE_SERVICE_ROLE_KEY belum di-set di Vercel.' }
+    }
+
+    // Create admin client to bypass RLS for this specific update
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
 
   // 1. Insert review
   const { error: reviewError } = await supabaseAdmin.from('submission_reviews').insert({
@@ -76,9 +81,13 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     await supabaseAdmin.from('notifications').insert(notificationPayloads as any)
   }
 
-  revalidatePath('/media/pengajuan')
-  revalidatePath(`/media/pengajuan/${submissionId}`)
-  revalidatePath(`/pengajuan/${submissionId}`) // also revalidate for lembaga admin view
-  
-  return { success: true }
+    revalidatePath('/media/pengajuan')
+    revalidatePath(`/media/pengajuan/${submissionId}`)
+    revalidatePath(`/pengajuan/${submissionId}`) // also revalidate for lembaga admin view
+    
+    return { success: true }
+  } catch (err: any) {
+    console.error('reviewSubmission error:', err)
+    return { error: err.message || 'Terjadi kesalahan pada server saat memproses ulasan' }
+  }
 }

@@ -34,7 +34,10 @@ export function ReviewForm({ submissionId }: { submissionId: string }) {
   async function onSubmit(data: ReviewFormValues, decision: 'approved' | 'rejected') {
     setIsSubmitting(true)
     try {
-      await reviewSubmission(submissionId, decision, data.notes || '')
+      const result = await reviewSubmission(submissionId, decision, data.notes || '')
+      if (result && result.error) {
+        throw new Error(result.error)
+      }
       alert(`Pengajuan berhasil di-${decision === 'approved' ? 'setujui' : 'tolak'}`)
       router.push('/media/pengajuan')
       router.refresh()
