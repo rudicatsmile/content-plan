@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
 export async function reviewSubmission(submissionId: string, decision: 'approved' | 'rejected', notes: string) {
@@ -15,8 +16,14 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     throw new Error('Only media admin can review submissions')
   }
 
+  // Create admin client to bypass RLS for this specific update
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   // 1. Insert review
-  const { error: reviewError } = await supabase.from('submission_reviews').insert({
+  const { error: reviewError } = await supabaseAdmin.from('submission_reviews').insert({
     submission_id: submissionId,
     reviewer_id: user.id,
     decision,
@@ -26,7 +33,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
   if (reviewError) throw reviewError
 
   // 2. Update submission status
-  const query = supabase.from('content_submissions') as any
+  const query = supabaseAdmin.from('content_submissions') as any
   const { error: updateError } = await query
     .update({ 
       status: decision,
@@ -53,7 +60,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     })
 
     // 3b. Notify pimpinan
-    const { data: pimpinans } = await supabase.from('profiles').select('id').eq('role', 'pimpinan') as any
+    const { data: pimpinans } = await supabaseAdmin.from('profiles').select('id').eq('role', 'pimpinan') as any
     if (pimpinans && pimpinans.length > 0) {
       for (const p of pimpinans) {
         notificationPayloads.push({
@@ -66,7 +73,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     }
 
     // Insert all notifications
-    await supabase.from('notifications').insert(notificationPayloads as any)
+    await supabaseAdmin.from('notifications').insert(notificationPayloads as any)
   }
 
   revalidatePath('/media/pengajuan')
