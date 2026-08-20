@@ -44,7 +44,11 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
           <div className="w-[250px]">
             <Select value={selectedLembagaId} onValueChange={(val) => setSelectedLembagaId(val || 'all')}>
               <SelectTrigger>
-                <SelectValue placeholder="Semua Lembaga" />
+                <SelectValue placeholder="Semua Lembaga">
+                  {selectedLembagaId === 'all' 
+                    ? 'Semua Lembaga' 
+                    : lembagasList.find(l => l.id === selectedLembagaId)?.name || 'Semua Lembaga'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Lembaga</SelectItem>
