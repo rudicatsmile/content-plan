@@ -128,3 +128,22 @@
     @apply font-sans;
   }
 }
+
+/* FullCalendar Customizations */
+@media (max-width: 768px) {
+  .fc .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    line-height: 1.2 !important;
+    text-align: center;
+  }
+  
+  .fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1rem !important;
+    gap: 0.5rem;
+  }
+
+  .fc .fc-button {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+}
