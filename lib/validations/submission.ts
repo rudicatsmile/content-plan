@@ -13,7 +13,7 @@ export const submissionSchema = z.object({
     type: z.string(),
     name: z.string(),
     size: z.number().optional(),
-  })).optional().default([]),
+  })).optional(),
   id: z.string().optional(), // Client-generated ID (no longer requires .uuid() since we may use 'temp-xxx')
 })
 

@@ -254,7 +254,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
             variant="outline"
             className="border-blue-500 text-blue-600 hover:bg-blue-50"
             disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
-            onClick={() => form.handleSubmit((data) => onSubmit(data as SubmissionFormValues, 'planning'))()}
+            onClick={form.handleSubmit((data) => onSubmit(data, 'planning'))}
           >
             {isSubmittingPlanning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Simpan Rencana
@@ -263,7 +263,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
             type="button"
             variant="outline"
             disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
-            onClick={() => form.handleSubmit((data) => onSubmit(data as SubmissionFormValues, 'draft'))()}
+            onClick={form.handleSubmit((data) => onSubmit(data, 'draft'))}
           >
             {isSubmittingDraft && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Simpan Draft
@@ -271,7 +271,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
           <Button
             type="button"
             disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
-            onClick={() => form.handleSubmit((data) => onSubmit(data as SubmissionFormValues, 'pending_review'))()}
+            onClick={form.handleSubmit((data) => onSubmit(data, 'pending_review'))}
           >
             {isSubmittingFinal && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Ajukan ke Media
