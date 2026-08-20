@@ -61,8 +61,36 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
         </div>
       )}
 
-      {/* Table */}
-      <div className="rounded-md border bg-white overflow-hidden shadow-sm">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {submissions?.map((sub) => (
+          <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3">
+            <div className="flex justify-between items-start gap-2">
+              <h3 className="font-medium text-slate-800 leading-tight">{sub.title}</h3>
+              <Badge variant={sub.status === 'draft' ? 'secondary' : sub.status === 'approved' ? 'default' : sub.status === 'planning' ? 'outline' : 'destructive'} className={sub.status === 'planning' ? 'bg-blue-100 text-blue-800 shrink-0' : 'shrink-0'}>
+                {sub.status.replace('_', ' ')}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="text-sm text-slate-500 space-y-1">
+                {showLembagaColumn && <p className="font-medium text-slate-700">{sub.lembaga?.name || '-'}</p>}
+                <p>{format(new Date(sub.upload_date), 'dd MMM yyyy')}</p>
+              </div>
+              <Link href={`${linkPrefix}/${sub.id}`}>
+                <Button variant="outline" size="sm">Detail</Button>
+              </Link>
+            </div>
+          </div>
+        ))}
+        {!submissions?.length && (
+          <div className="text-center p-8 text-muted-foreground bg-white rounded-lg border shadow-sm">
+            Belum ada data pengajuan
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-md border bg-white overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <Table className="min-w-[800px]">
             <TableHeader className="bg-slate-50">
