@@ -33,18 +33,18 @@ export async function Navbar() {
               Content Plan
             </Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {userName && (
-              <div className="flex flex-col items-end mr-2">
+              <div className="hidden sm:flex flex-col items-end mr-0 md:mr-2">
                 <span className="text-sm font-semibold text-slate-800">{userName}</span>
                 {lembagaName && <span className="text-xs text-slate-500">{lembagaName}</span>}
               </div>
             )}
             <NotificationBell />
             <form action={logout}>
-              <Button variant="ghost" size="sm" type="submit" className="text-gray-600 hover:text-red-600 hover:bg-red-50">
-                <LogOut className="w-4 h-4 mr-2" />
-                Keluar
+              <Button variant="ghost" size="sm" type="submit" className="text-gray-600 hover:text-red-600 hover:bg-red-50 px-2 md:px-3">
+                <LogOut className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">Keluar</span>
               </Button>
             </form>
           </div>
