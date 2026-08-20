@@ -30,7 +30,7 @@ export default async function EditSubmissionPage({ params }: { params: Promise<{
       platforms:content_submission_platforms(platform_id)
     `)
     .eq('id', resolvedParams.id)
-    .single()
+    .single() as any
 
   if (!submission) {
     return <div className="p-8 text-center">Pengajuan tidak ditemukan</div>
