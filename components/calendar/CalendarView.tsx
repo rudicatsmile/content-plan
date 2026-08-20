@@ -24,11 +24,15 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
   const effectiveLembagaId = userRole === 'lembaga_admin' ? userLembagaId : selectedLembagaId
 
   const [initialView, setInitialView] = useState('dayGridMonth')
+  const [isMobile, setIsMobile] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     if (window.innerWidth < 768) {
       setInitialView('listWeek')
+      setIsMobile(true)
     }
+    setIsMounted(true)
   }, [])
 
   const [dateRange, setDateRange] = useState<{ start?: Date, end?: Date }>({})
@@ -59,15 +63,17 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
     })
   }
 
+  if (!isMounted) return null
+
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm border relative min-h-[600px] calendar-wrapper">
+    <div className="bg-white p-2 md:p-4 rounded-xl shadow-sm border relative min-h-[600px] calendar-wrapper text-sm md:text-base overflow-hidden">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin] as any}
         initialView={initialView}
         headerToolbar={{
-          left: 'prev,next today',
+          left: isMobile ? 'prev,next' : 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,listWeek'
+          right: isMobile ? 'listWeek' : 'dayGridMonth,timeGridWeek,listWeek'
         }}
         locales={[idLocale] as any}
         locale="id"

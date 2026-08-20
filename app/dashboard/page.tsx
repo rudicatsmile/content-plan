@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CalendarSidebar } from '@/components/calendar/CalendarSidebar'
 import { CalendarWrapper } from '@/components/calendar/CalendarWrapper'
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
+import { FilterIcon } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,7 +28,19 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold">Kalender Konten</h1>
           <p className="text-muted-foreground mt-1">Jadwal publikasi dari seluruh lembaga</p>
         </div>
-        <div>
+        <div className="flex gap-2">
+          {/* Mobile Filter Button */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger render={<Button variant="outline" className="flex items-center gap-2" />}>
+                <FilterIcon className="w-4 h-4" /> Filter & Menu
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] p-4 overflow-y-auto">
+                <SheetTitle className="sr-only">Filter & Menu</SheetTitle>
+                <CalendarSidebar userRole={profile.role} />
+              </SheetContent>
+            </Sheet>
+          </div>
           <Link href={profile.role === 'media_admin' ? '/media/pengajuan' : '/pengajuan'}>
             <Button>Lihat Data Pengajuan</Button>
           </Link>
@@ -34,7 +48,12 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">
-        <CalendarSidebar userRole={profile.role} />
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <CalendarSidebar userRole={profile.role} />
+        </div>
+        
+        {/* Calendar Main Area */}
         <div className="flex-1 overflow-hidden">
           <CalendarWrapper userRole={profile.role} userLembagaId={profile.lembaga_id} />
         </div>
