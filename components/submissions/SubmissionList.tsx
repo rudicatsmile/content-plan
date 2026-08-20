@@ -42,7 +42,7 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
       {(userRole === 'super_admin' || userRole === 'media_admin') && (
         <div className="flex items-center gap-4">
           <div className="w-[250px]">
-            <Select value={selectedLembagaId} onValueChange={setSelectedLembagaId}>
+            <Select value={selectedLembagaId} onValueChange={(val) => setSelectedLembagaId(val || 'all')}>
               <SelectTrigger>
                 <SelectValue placeholder="Semua Lembaga" />
               </SelectTrigger>
