@@ -20,12 +20,17 @@ export default async function CreateSubmissionPage() {
   }
 
   const { data: platforms } = await supabase.from('social_platforms').select('id, name').order('name')
+  const { data: contentTypes } = await supabase.from('content_types').select('id, name').order('name')
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Buat Pengajuan Konten Baru</h1>
       <div className="bg-white p-6 rounded-xl shadow-sm border">
-        <SubmissionForm lembagaId={profile.lembaga_id} platforms={platforms || []} />
+        <SubmissionForm 
+          lembagaId={profile.lembaga_id} 
+          platforms={platforms || []} 
+          contentTypes={contentTypes || []}
+        />
       </div>
     </div>
   )

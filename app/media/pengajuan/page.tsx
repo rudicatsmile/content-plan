@@ -24,7 +24,7 @@ export default async function MediaPengajuanPage() {
       </div>
       <div className="bg-white p-6 rounded-xl shadow-sm border">
         {/* Only show pending_review by default for media admin */}
-        <SubmissionList filters={{ status: 'pending_review' }} linkPrefix="/media/pengajuan" />
+        <SubmissionList filters={{ status: 'pending_review' }} linkPrefix="/media/pengajuan" userRole={profile.role} />
       </div>
     </div>
   )

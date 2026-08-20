@@ -10,6 +10,7 @@ export function useSubmissions(filters?: { status?: string; lembagaId?: string }
       let query = supabase.from('content_submissions').select(`
         *,
         lembaga:lembaga(name),
+        content_types(name),
         platforms:content_submission_platforms(social_platforms(id, name))
       `).order('upload_date', { ascending: true })
 
@@ -38,6 +39,7 @@ export function useSubmission(id: string) {
         .select(`
           *,
           lembaga:lembaga(name),
+          content_types(name),
           platforms:content_submission_platforms(social_platforms(id, name, icon_url)),
           reviews:submission_reviews(id, decision, notes, created_at, reviewer:profiles(full_name))
         `)

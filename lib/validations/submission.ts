@@ -7,8 +7,14 @@ export const submissionSchema = z.object({
     required_error: 'Tanggal upload wajib diisi',
   }),
   platforms: z.array(z.string()).min(1, 'Pilih minimal 1 platform'),
-  image_url: z.string().min(1, 'Gambar wajib diunggah'),
-  id: z.string().uuid().optional(), // We'll pre-generate this on client
+  content_type_id: z.string({ required_error: 'Pilih jenis konten' }).min(1, 'Pilih jenis konten'),
+  media_urls: z.array(z.object({
+    url: z.string(),
+    type: z.string(),
+    name: z.string(),
+    size: z.number().optional(),
+  })).optional().default([]),
+  id: z.string().optional(), // Client-generated ID (no longer requires .uuid() since we may use 'temp-xxx')
 })
 
 export type SubmissionFormValues = z.infer<typeof submissionSchema>

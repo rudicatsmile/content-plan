@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import { cancelSubmission, submitSubmission } from '@/app/actions/submissions'
+import Link from 'next/link'
 
 export function SubmissionDetail({ id }: { id: string }) {
   const { data: submissionRaw, isLoading, refetch } = useSubmission(id)
@@ -41,16 +42,49 @@ export function SubmissionDetail({ id }: { id: string }) {
         </Badge>
       </div>
 
-      {submission.image_url && (
-        <img src={submission.image_url} alt={submission.title} className="w-full max-h-96 object-cover rounded-xl border" />
+      {submission.media_urls && submission.media_urls.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {submission.media_urls.map((media: any, index: number) => {
+            const isImage = media.type.startsWith('image/')
+            const isVideo = media.type.startsWith('video/')
+            const isPdf = media.type === 'application/pdf'
+
+            if (isImage) {
+              return (
+                <a key={index} href={media.url} target="_blank" rel="noreferrer" className="block w-full aspect-square border rounded-xl overflow-hidden bg-slate-50 hover:opacity-90">
+                  <img src={media.url} alt={media.name} className="w-full h-full object-cover" />
+                </a>
+              )
+            } else if (isVideo) {
+              return (
+                <div key={index} className="w-full aspect-square border rounded-xl overflow-hidden bg-slate-50 flex flex-col items-center justify-center p-4">
+                  <video src={media.url} controls className="w-full max-h-32 mb-2" />
+                  <a href={media.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 truncate w-full text-center hover:underline">{media.name}</a>
+                </div>
+              )
+            } else if (isPdf) {
+              return (
+                <a key={index} href={media.url} target="_blank" rel="noreferrer" className="w-full aspect-square border rounded-xl overflow-hidden bg-slate-50 flex flex-col items-center justify-center p-4 hover:bg-slate-100">
+                  <div className="text-red-500 mb-2 font-bold text-3xl">PDF</div>
+                  <span className="text-xs text-center text-slate-700 truncate w-full">{media.name}</span>
+                </a>
+              )
+            }
+            return null
+          })}
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <span className="font-semibold block mb-1">Tanggal Upload:</span>
-          {format(new Date(submission.upload_date), 'PPP')}
+          {format(new Date(submission.upload_date), 'dd-MM-yyyy')}
         </div>
         <div>
+          <span className="font-semibold block mb-1">Jenis Konten:</span>
+          {submission.content_types?.name || '-'}
+        </div>
+        <div className="col-span-2">
           <span className="font-semibold block mb-1">Platform:</span>
           <div className="flex gap-2 flex-wrap">
             {submission.platforms?.map((p: any) => (
@@ -91,7 +125,17 @@ export function SubmissionDetail({ id }: { id: string }) {
         </div>
       )}
 
-      <div className="flex gap-4 pt-4 border-t">
+      <div className="flex flex-wrap gap-4 pt-4 border-t">
+        {(submission.status === 'planning' || submission.status === 'draft' || submission.status === 'pending_review') && (
+          <Link href={`/pengajuan/${id}/edit`}>
+            <Button variant="outline">Edit Pengajuan</Button>
+          </Link>
+        )}
+        
+        {submission.status === 'planning' && (
+          <Button variant="destructive" onClick={handleCancel}>Hapus Rencana</Button>
+        )}
+
         {submission.status === 'draft' && (
           <>
             <Button onClick={handleSubmit}>Ajukan Sekarang</Button>

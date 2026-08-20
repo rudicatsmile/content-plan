@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function createSubmission(data: any, isDraft: boolean) {
+export async function createSubmission(data: any, targetStatus: 'planning' | 'draft' | 'pending_review') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -21,12 +21,13 @@ export async function createSubmission(data: any, isDraft: boolean) {
     id: submissionId,
     lembaga_id: profile.lembaga_id,
     created_by: user.id,
+    content_type_id: data.content_type_id,
     title: data.title,
     description: data.description,
-    image_url: data.image_url,
+    media_urls: data.media_urls,
     upload_date: data.upload_date,
-    status: isDraft ? 'draft' : 'pending_review',
-    submitted_at: isDraft ? null : new Date().toISOString(),
+    status: targetStatus,
+    submitted_at: targetStatus === 'pending_review' ? new Date().toISOString() : null,
   } as any)
 
   if (insertError) throw insertError
@@ -46,7 +47,7 @@ export async function createSubmission(data: any, isDraft: boolean) {
   return { success: true, id: submissionId }
 }
 
-export async function updateSubmission(id: string, data: any, isDraft: boolean) {
+export async function updateSubmission(id: string, data: any, targetStatus: 'planning' | 'draft' | 'pending_review') {
   const supabase = await createClient()
   
   // 1. Update content_submissions
@@ -55,14 +56,15 @@ export async function updateSubmission(id: string, data: any, isDraft: boolean) 
     .update({
       title: data.title,
       description: data.description,
-      image_url: data.image_url,
+      content_type_id: data.content_type_id,
+      media_urls: data.media_urls,
       upload_date: data.upload_date,
-      status: isDraft ? 'draft' : 'pending_review',
-      submitted_at: isDraft ? null : new Date().toISOString(),
+      status: targetStatus,
+      submitted_at: targetStatus === 'pending_review' ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .eq('status', 'draft') // Ensure only drafts can be updated this way
+    .in('status', ['planning', 'draft', 'pending_review']) // Allow editing for planning, draft, or pending_review
 
   if (updateError) throw updateError
 
@@ -107,7 +109,7 @@ export async function cancelSubmission(id: string) {
   const { error } = await supabase.from('content_submissions')
     .delete()
     .eq('id', id)
-    .in('status', ['draft', 'pending_review'])
+    .in('status', ['planning', 'draft', 'pending_review'])
 
   if (error) throw error
   revalidatePath('/pengajuan')

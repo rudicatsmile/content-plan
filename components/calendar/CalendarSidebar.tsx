@@ -87,6 +87,10 @@ export function CalendarSidebar({ userRole }: { userRole: string }) {
         <h3 className="font-semibold">Legenda Status</h3>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-blue-300"></span>
+            <span>Rencana (Planning)</span>
+          </div>
+          <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-slate-400"></span>
             <span>Draft</span>
           </div>

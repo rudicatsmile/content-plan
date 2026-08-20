@@ -22,51 +22,68 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { ImageUploader } from '@/components/ui/image-uploader'
+import { MultiMediaUploader } from '@/components/ui/multi-media-uploader'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 import { submissionSchema, type SubmissionFormValues } from '@/lib/validations/submission'
-import { createSubmission } from '@/app/actions/submissions'
+import { createSubmission, updateSubmission } from '@/app/actions/submissions'
 
 interface SubmissionFormProps {
   lembagaId: string
   platforms: { id: string; name: string }[]
+  contentTypes: { id: string; name: string }[]
+  initialData?: any
 }
 
-export function SubmissionForm({ lembagaId, platforms }: SubmissionFormProps) {
+export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], initialData }: SubmissionFormProps) {
   const router = useRouter()
+  const [isSubmittingPlanning, setIsSubmittingPlanning] = useState(false)
   const [isSubmittingDraft, setIsSubmittingDraft] = useState(false)
   const [isSubmittingFinal, setIsSubmittingFinal] = useState(false)
   
   // Use crypto.randomUUID for client-side UUID generation if available, else a fallback
   const submissionId = useMemo(() => {
-    return typeof crypto !== 'undefined' && crypto.randomUUID 
+    return initialData?.id || (typeof crypto !== 'undefined' && crypto.randomUUID 
       ? crypto.randomUUID() 
-      : 'temp-' + Date.now()
-  }, [])
+      : 'temp-' + Date.now())
+  }, [initialData])
 
   const form = useForm<SubmissionFormValues>({
     resolver: zodResolver(submissionSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      platforms: [],
-      image_url: '',
+      title: initialData?.title || '',
+      description: initialData?.description || '',
+      platforms: initialData?.platforms?.map((p: any) => p.platform_id) || [],
+      media_urls: Array.isArray(initialData?.media_urls) ? initialData.media_urls : [],
+      content_type_id: initialData?.content_type_id || '',
+      upload_date: initialData?.upload_date ? new Date(initialData.upload_date) : undefined,
       id: submissionId,
     },
   })
 
-  async function onSubmit(data: SubmissionFormValues, isDraft: boolean) {
-    if (isDraft) setIsSubmittingDraft(true)
+  async function onSubmit(data: SubmissionFormValues, targetStatus: 'planning' | 'draft' | 'pending_review') {
+    if (targetStatus !== 'planning' && (!data.media_urls || data.media_urls.length === 0)) {
+      form.setError('media_urls', { type: 'manual', message: 'Minimal 1 file media wajib diunggah untuk menyimpan Draft atau Mengajukan.' })
+      return
+    }
+
+    if (targetStatus === 'planning') setIsSubmittingPlanning(true)
+    else if (targetStatus === 'draft') setIsSubmittingDraft(true)
     else setIsSubmittingFinal(true)
 
     try {
-      await createSubmission(data, isDraft)
+      if (initialData) {
+        await updateSubmission(initialData.id, data, targetStatus)
+      } else {
+        await createSubmission(data, targetStatus)
+      }
       router.push('/pengajuan')
       router.refresh()
     } catch (error) {
       console.error('Error submitting:', error)
       alert('Gagal menyimpan pengajuan')
     } finally {
+      setIsSubmittingPlanning(false)
       setIsSubmittingDraft(false)
       setIsSubmittingFinal(false)
     }
@@ -77,12 +94,39 @@ export function SubmissionForm({ lembagaId, platforms }: SubmissionFormProps) {
       <form className="space-y-8 max-w-3xl">
         <FormField
           control={form.control}
-          name="image_url"
+          name="content_type_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Gambar Konten</FormLabel>
+              <FormLabel>Jenis Konten</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih jenis konten">
+                      {contentTypes.find((t) => t.id === field.value)?.name || 'Pilih jenis konten'}
+                    </SelectValue>
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {contentTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="media_urls"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>File Media</FormLabel>
               <FormControl>
-                <ImageUploader 
+                <MultiMediaUploader 
                   value={field.value} 
                   onChange={field.onChange} 
                   lembagaId={lembagaId}
@@ -204,23 +248,33 @@ export function SubmissionForm({ lembagaId, platforms }: SubmissionFormProps) {
           )}
         />
 
-        <div className="flex gap-4 pt-4 border-t">
+        <div className="flex flex-wrap gap-4 pt-4 border-t">
           <Button
             type="button"
             variant="outline"
-            disabled={isSubmittingDraft || isSubmittingFinal}
-            onClick={() => form.handleSubmit((data) => onSubmit(data, true))()}
+            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+            disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
+            onClick={() => form.handleSubmit((data) => onSubmit(data, 'planning'))()}
+          >
+            {isSubmittingPlanning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Simpan Rencana
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
+            onClick={() => form.handleSubmit((data) => onSubmit(data, 'draft'))()}
           >
             {isSubmittingDraft && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Simpan Draft
           </Button>
           <Button
             type="button"
-            disabled={isSubmittingDraft || isSubmittingFinal}
-            onClick={() => form.handleSubmit((data) => onSubmit(data, false))()}
+            disabled={isSubmittingPlanning || isSubmittingDraft || isSubmittingFinal}
+            onClick={() => form.handleSubmit((data) => onSubmit(data, 'pending_review'))()}
           >
             {isSubmittingFinal && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Ajukan Sekarang
+            Ajukan ke Media
           </Button>
         </div>
       </form>
