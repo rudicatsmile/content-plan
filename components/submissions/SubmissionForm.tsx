@@ -99,7 +99,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
     <Form {...form}>
       <form className="space-y-8 max-w-3xl">
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="content_type_id"
           render={({ field }) => (
             <FormItem>
@@ -126,7 +126,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="media_urls"
           render={({ field }) => (
             <FormItem>
@@ -145,7 +145,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="title"
           render={({ field }) => (
             <FormItem>
@@ -159,7 +159,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="priority"
           render={({ field }) => (
             <FormItem>
@@ -181,7 +181,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="description"
           render={({ field }) => (
             <FormItem>
@@ -195,7 +195,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="upload_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
@@ -229,7 +229,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
         />
 
         <FormField
-          control={form.control}
+          control={form.control as any}
           name="platforms"
           render={() => (
             <FormItem>
@@ -238,7 +238,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
                 {platforms.map((platform) => (
                   <FormField
                     key={platform.id}
-                    control={form.control}
+                    control={form.control as any}
                     name="platforms"
                     render={({ field }) => {
                       return (
