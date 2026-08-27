@@ -16,6 +16,9 @@ export async function createSubmission(data: any, targetStatus: 'planning' | 'dr
 
   const submissionId = data.id // Client-generated UUID
 
+  // Format upload_date to YYYY-MM-DD to avoid timezone shifting
+  const formattedUploadDate = data.upload_date ? new Date(data.upload_date).toLocaleDateString('en-CA') : null
+
   // 1. Insert into content_submissions
   const { error: insertError } = await supabase.from('content_submissions').insert({
     id: submissionId,
@@ -25,7 +28,7 @@ export async function createSubmission(data: any, targetStatus: 'planning' | 'dr
     title: data.title,
     description: data.description,
     media_urls: data.media_urls,
-    upload_date: data.upload_date,
+    upload_date: formattedUploadDate,
     status: targetStatus,
     submitted_at: targetStatus === 'pending_review' ? new Date().toISOString() : null,
   } as any)
@@ -50,6 +53,9 @@ export async function createSubmission(data: any, targetStatus: 'planning' | 'dr
 export async function updateSubmission(id: string, data: any, targetStatus: 'planning' | 'draft' | 'pending_review') {
   const supabase = await createClient()
   
+  // Format upload_date to YYYY-MM-DD to avoid timezone shifting (e.g. UTC-7 pushing it to previous day)
+  const formattedUploadDate = data.upload_date ? new Date(data.upload_date).toLocaleDateString('en-CA') : null
+
   // 1. Update content_submissions
   const query = supabase.from('content_submissions') as any
   const { error: updateError } = await query
@@ -58,7 +64,7 @@ export async function updateSubmission(id: string, data: any, targetStatus: 'pla
       description: data.description,
       content_type_id: data.content_type_id,
       media_urls: data.media_urls,
-      upload_date: data.upload_date,
+      upload_date: formattedUploadDate,
       status: targetStatus,
       submitted_at: targetStatus === 'pending_review' ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
