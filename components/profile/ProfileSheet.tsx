@@ -122,7 +122,7 @@ export function ProfileSheet({ children, initialData }: ProfileSheetProps) {
           <SheetTitle>Pengaturan Akun</SheetTitle>
         </SheetHeader>
         
-        <div className="mt-6">
+        <div className="mt-4 px-4 pb-6">
           <Tabs defaultValue="profile" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="profile">Edit Profil</TabsTrigger>
