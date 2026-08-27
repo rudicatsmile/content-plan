@@ -72,10 +72,15 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
     else setIsSubmittingFinal(true)
 
     try {
+      const payload = {
+        ...data,
+        upload_date: data.upload_date ? format(data.upload_date, 'yyyy-MM-dd') : null
+      }
+
       if (initialData) {
-        await updateSubmission(initialData.id, data, targetStatus)
+        await updateSubmission(initialData.id, payload, targetStatus)
       } else {
-        await createSubmission(data, targetStatus)
+        await createSubmission(payload, targetStatus)
       }
       router.push('/pengajuan')
       router.refresh()
