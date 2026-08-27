@@ -56,6 +56,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
       platforms: initialData?.platforms?.map((p: any) => p.platform_id) || [],
       media_urls: Array.isArray(initialData?.media_urls) ? initialData.media_urls : [],
       content_type_id: initialData?.content_type_id || '',
+      priority: initialData?.priority || 'biasa',
       upload_date: initialData?.upload_date ? new Date(initialData.upload_date) : undefined,
       id: submissionId,
     },
@@ -152,6 +153,28 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
               <FormControl>
                 <Input placeholder="Masukkan judul konten..." {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="priority"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tingkat Prioritas</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih tingkat prioritas" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="biasa">Biasa</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

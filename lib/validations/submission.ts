@@ -8,6 +8,7 @@ export const submissionSchema = z.object({
   }),
   platforms: z.array(z.string()).min(1, 'Pilih minimal 1 platform'),
   content_type_id: z.string({ required_error: 'Pilih jenis konten' }).min(1, 'Pilih jenis konten'),
+  priority: z.enum(['biasa', 'urgent']).default('biasa'),
   media_urls: z.array(z.object({
     url: z.string(),
     type: z.string(),

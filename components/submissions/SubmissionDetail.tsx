@@ -34,8 +34,13 @@ export function SubmissionDetail({ id }: { id: string }) {
     <div className="space-y-6">
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold">{submission.title}</h2>
-          <p className="text-muted-foreground">{submission.lembaga?.name}</p>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold">{submission.title}</h2>
+            {submission.priority === 'urgent' && (
+              <Badge variant="destructive" className="h-6 mt-1">URGENT</Badge>
+            )}
+          </div>
+          <p className="text-muted-foreground mt-1">{submission.lembaga?.name}</p>
         </div>
         <Badge variant={submission.status === 'draft' ? 'secondary' : submission.status === 'approved' ? 'default' : 'outline'}>
           {submission.status.replace('_', ' ').toUpperCase()}

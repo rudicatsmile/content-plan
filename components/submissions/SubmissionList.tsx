@@ -66,7 +66,12 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
         {submissions?.map((sub) => (
           <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3">
             <div className="flex justify-between items-start gap-2">
-              <h3 className="font-medium text-slate-800 leading-tight">{sub.title}</h3>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-medium text-slate-800 leading-tight">{sub.title}</h3>
+                {sub.priority === 'urgent' && (
+                  <Badge variant="destructive" className="w-fit text-[10px] h-4 px-1.5 leading-none">URGENT</Badge>
+                )}
+              </div>
               <Badge variant={sub.status === 'draft' ? 'secondary' : sub.status === 'approved' ? 'default' : sub.status === 'planning' ? 'outline' : 'destructive'} className={sub.status === 'planning' ? 'bg-blue-100 text-blue-800 shrink-0' : 'shrink-0'}>
                 {sub.status.replace('_', ' ')}
               </Badge>
@@ -105,7 +110,14 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
             <TableBody>
               {submissions?.map((sub) => (
                 <TableRow key={sub.id}>
-                  <TableCell className="font-medium">{sub.title}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col gap-1 items-start">
+                      <span>{sub.title}</span>
+                      {sub.priority === 'urgent' && (
+                        <Badge variant="destructive" className="w-fit text-[10px] h-4 px-1.5 leading-none">URGENT</Badge>
+                      )}
+                    </div>
+                  </TableCell>
                   {showLembagaColumn && (
                     <TableCell>{sub.lembaga?.name || '-'}</TableCell>
                   )}
