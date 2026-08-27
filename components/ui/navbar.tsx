@@ -45,15 +45,15 @@ export async function Navbar() {
                 phone_number: profileData?.phone_number, 
                 avatar_url: profileData?.avatar_url 
               }}>
-                <button className="hidden sm:flex flex-row items-center gap-3 mr-0 md:mr-2 text-left hover:bg-slate-50 p-2 rounded-md transition-colors border border-transparent hover:border-slate-200">
-                  <div className="flex flex-col items-end">
+                <button className="flex flex-row items-center gap-2 md:gap-3 mr-0 md:mr-2 text-left hover:bg-slate-50 p-1 md:p-2 rounded-md transition-colors border border-transparent hover:border-slate-200 cursor-pointer">
+                  <div className="hidden sm:flex flex-col items-end">
                     <span className="text-sm font-semibold text-slate-800">{userName}</span>
                     {lembagaName && <span className="text-xs text-slate-500">{lembagaName}</span>}
                   </div>
                   {profileData?.avatar_url ? (
-                    <img src={profileData.avatar_url} alt="Avatar" className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm" />
+                    <img src={profileData.avatar_url} alt="Avatar" className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-slate-200 shadow-sm" />
                   ) : (
-                    <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm">
+                    <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-sm">
                       {userName.charAt(0).toUpperCase()}
                     </div>
                   )}
