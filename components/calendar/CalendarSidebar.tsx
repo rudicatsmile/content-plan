@@ -54,7 +54,11 @@ export function CalendarSidebar({ userRole }: { userRole: string }) {
             <label className="text-sm font-medium">Lembaga</label>
             <Select value={selectedLembagaId} onValueChange={(val) => setLembaga(val || 'all')}>
               <SelectTrigger>
-                <SelectValue placeholder="Semua Lembaga" />
+                <SelectValue placeholder="Semua Lembaga">
+                  {selectedLembagaId === 'all' 
+                    ? 'Semua Lembaga' 
+                    : lembagas.find(l => l.id === selectedLembagaId)?.name || 'Memuat...'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Lembaga</SelectItem>
