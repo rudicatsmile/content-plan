@@ -8,7 +8,7 @@ export function useCalendarEvents(filters: { lembagaId: string; platformId: stri
     queryKey: ['calendar_events', filters],
     queryFn: async () => {
       let query = supabase.from('content_submissions').select(`
-        id, title, upload_date, status, lembaga_id, 
+        id, title, upload_date, status, lembaga_id, priority,
         lembaga:lembaga_id(name)
       `) as any
 
@@ -37,15 +37,22 @@ export function useCalendarEvents(filters: { lembagaId: string; platformId: stri
         if (sub.status === 'approved') color = '#22c55e' // green
         if (sub.status === 'rejected' || sub.status === 'cancelled') color = '#ef4444' // red
 
+        let title = `[${sub.lembaga?.name || '?'}] ${sub.title}`
+        if (sub.priority === 'urgent') {
+          title = `🚨 ${title}`
+        }
+
         return {
           id: sub.id,
-          title: `[${sub.lembaga?.name || '?'}] ${sub.title}`,
+          title,
           date: sub.upload_date,
           backgroundColor: color,
-          borderColor: color,
+          borderColor: sub.priority === 'urgent' ? '#ef4444' : color,
+          classNames: sub.priority === 'urgent' ? ['urgent-calendar-event'] : [],
           extendedProps: {
             status: sub.status,
-            lembaga_id: sub.lembaga_id
+            lembaga_id: sub.lembaga_id,
+            priority: sub.priority
           }
         }
       })

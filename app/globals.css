@@ -147,3 +147,9 @@
     font-size: 0.875rem !important;
   }
 }
+
+.urgent-calendar-event {
+  border-width: 2px !important;
+  border-style: solid !important;
+  font-weight: 600 !important;
+}
