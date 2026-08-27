@@ -49,8 +49,8 @@ export function MultiMediaUploader({ value = [], onChange, submissionId, lembaga
           setError(`Gambar ${file.name} terlalu besar (Maks 10MB)`)
           continue
         }
-        if (isVideo && file.size > 50 * 1024 * 1024) {
-          setError(`Video ${file.name} terlalu besar (Maks 50MB)`)
+        if (isVideo && file.size > 100 * 1024 * 1024) {
+          setError(`Video ${file.name} terlalu besar (Maks 100MB)`)
           continue
         }
         if (isPdf && file.size > 20 * 1024 * 1024) {
@@ -157,7 +157,7 @@ export function MultiMediaUploader({ value = [], onChange, submissionId, lembaga
             {isUploading ? 'Sedang mengunggah file...' : 'Klik atau drag & drop file media ke sini'}
           </div>
           <div className="text-xs text-muted-foreground">
-            Bisa pilih banyak file sekaligus. Mendukung Gambar (Maks 10MB), Video (Maks 50MB), dan PDF (Maks 20MB).
+            Bisa pilih banyak file sekaligus. Mendukung Gambar (Maks 10MB), Video (Maks 100MB), dan PDF (Maks 20MB).
           </div>
           {error && <div className="text-sm text-destructive mt-2">{error}</div>}
         </div>
