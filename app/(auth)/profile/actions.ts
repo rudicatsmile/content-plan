@@ -17,7 +17,7 @@ export async function updateProfile(data: { full_name: string; phone_number: str
       full_name: data.full_name,
       phone_number: data.phone_number,
       avatar_url: data.avatar_url,
-    })
+    } as any)
     .eq('id', user.id)
 
   if (error) {

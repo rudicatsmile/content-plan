@@ -116,9 +116,7 @@ export function ProfileSheet({ children, initialData }: ProfileSheetProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        {children}
-      </SheetTrigger>
+      <SheetTrigger render={children as React.ReactElement} />
       <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Pengaturan Akun</SheetTitle>
