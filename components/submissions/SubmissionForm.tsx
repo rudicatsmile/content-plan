@@ -49,7 +49,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
   }, [initialData])
 
   const form = useForm<SubmissionFormValues>({
-    resolver: zodResolver(submissionSchema),
+    resolver: zodResolver(submissionSchema) as any,
     defaultValues: {
       title: initialData?.title || '',
       description: initialData?.description || '',
@@ -256,7 +256,7 @@ export function SubmissionForm({ lembagaId, platforms = [], contentTypes = [], i
                                   ? field.onChange([...field.value, platform.id])
                                   : field.onChange(
                                       field.value?.filter(
-                                        (value) => value !== platform.id
+                                        (value: string) => value !== platform.id
                                       )
                                     )
                               }}
