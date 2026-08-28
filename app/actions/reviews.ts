@@ -65,8 +65,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
       message: `Pengajuan konten "${submission.title}" telah ${statusText} oleh Media Admin.`,
     })
 
-    // 3b. Notify pimpinan
-    const { data: pimpinans } = await supabaseAdmin.from('profiles').select('id, phone_number').eq('role', 'pimpinan') as any
+    const { data: pimpinans } = await (supabaseAdmin.from('profiles') as any).select('id, phone_number').eq('role', 'pimpinan')
     if (pimpinans && pimpinans.length > 0) {
       for (const p of pimpinans) {
         notificationPayloads.push({
@@ -89,7 +88,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     const phonesToNotify = new Set<string>()
 
     // Get creator phone
-    const { data: creatorProfile } = await supabaseAdmin.from('profiles').select('phone_number').eq('id', submission.created_by).single() as any
+    const { data: creatorProfile } = await (supabaseAdmin.from('profiles') as any).select('phone_number').eq('id', submission.created_by).single()
     if (creatorProfile?.phone_number) {
       phonesToNotify.add(creatorProfile.phone_number)
     }

@@ -47,8 +47,7 @@ export async function createSubmission(data: any, targetStatus: 'planning' | 'dr
 
   // 3. Send WhatsApp Notification if pending_review
   if (targetStatus === 'pending_review') {
-    const { data: mediaAdmins } = await supabase
-      .from('profiles')
+    const { data: mediaAdmins } = await (supabase.from('profiles') as any)
       .select('phone_number')
       .eq('role', 'media_admin')
       .not('phone_number', 'is', null)
@@ -103,8 +102,7 @@ export async function updateSubmission(id: string, data: any, targetStatus: 'pla
 
   // 3. Send WhatsApp Notification if status changed to pending_review
   if (targetStatus === 'pending_review') {
-    const { data: mediaAdmins } = await supabase
-      .from('profiles')
+    const { data: mediaAdmins } = await (supabase.from('profiles') as any)
       .select('phone_number')
       .eq('role', 'media_admin')
       .not('phone_number', 'is', null)
@@ -140,9 +138,8 @@ export async function submitSubmission(id: string) {
   if (error) throw error
 
   // Notify Media Admins via WA
-  const { data: submission } = await supabase.from('content_submissions').select('title, upload_date').eq('id', id).single()
-  const { data: mediaAdmins } = await supabase
-    .from('profiles')
+  const { data: submission } = await (supabase.from('content_submissions') as any).select('title, upload_date').eq('id', id).single()
+  const { data: mediaAdmins } = await (supabase.from('profiles') as any)
     .select('phone_number')
     .eq('role', 'media_admin')
     .not('phone_number', 'is', null)
