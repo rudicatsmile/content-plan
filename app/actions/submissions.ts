@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendWhatsAppMessage } from '@/lib/wablas'
 
 export async function createSubmission(data: any, targetStatus: 'planning' | 'draft' | 'pending_review') {
   const supabase = await createClient()
@@ -44,6 +45,25 @@ export async function createSubmission(data: any, targetStatus: 'planning' | 'dr
     if (platformsError) throw platformsError
   }
 
+  // 3. Send WhatsApp Notification if pending_review
+  if (targetStatus === 'pending_review') {
+    const { data: mediaAdmins } = await supabase
+      .from('profiles')
+      .select('phone_number')
+      .eq('role', 'media_admin')
+      .not('phone_number', 'is', null)
+
+    if (mediaAdmins && mediaAdmins.length > 0) {
+      const message = `📝 *PENGAJUAN KONTEN BARU* 📝\n\nHalo Tim Media,\nAda pengajuan konten baru menunggu ulasan Anda!\n\n*Judul:* ${data.title}\n*Tanggal Upload:* ${new Date(data.upload_date).toLocaleDateString('id-ID')}\n\nSilakan cek dasbor untuk melihat detailnya.`;
+      
+      for (const admin of mediaAdmins) {
+        if (admin.phone_number) {
+          await sendWhatsAppMessage(admin.phone_number, message)
+        }
+      }
+    }
+  }
+
   revalidatePath('/pengajuan')
   return { success: true, id: submissionId }
 }
@@ -81,6 +101,25 @@ export async function updateSubmission(id: string, data: any, targetStatus: 'pla
     await supabase.from('content_submission_platforms').insert(platformsData)
   }
 
+  // 3. Send WhatsApp Notification if status changed to pending_review
+  if (targetStatus === 'pending_review') {
+    const { data: mediaAdmins } = await supabase
+      .from('profiles')
+      .select('phone_number')
+      .eq('role', 'media_admin')
+      .not('phone_number', 'is', null)
+
+    if (mediaAdmins && mediaAdmins.length > 0) {
+      const message = `📝 *PENGAJUAN KONTEN DIPERBARUI* 📝\n\nHalo Tim Media,\nSebuah pengajuan konten (Draft/Revisi) telah dikirimkan kembali untuk ulasan Anda!\n\n*Judul:* ${data.title}\n*Tanggal Upload:* ${new Date(data.upload_date).toLocaleDateString('id-ID')}\n\nSilakan cek dasbor untuk melihat detailnya.`;
+      
+      for (const admin of mediaAdmins) {
+        if (admin.phone_number) {
+          await sendWhatsAppMessage(admin.phone_number, message)
+        }
+      }
+    }
+  }
+
   revalidatePath('/pengajuan')
   revalidatePath(`/pengajuan/${id}`)
   return { success: true }
@@ -99,6 +138,25 @@ export async function submitSubmission(id: string) {
     .eq('status', 'draft')
 
   if (error) throw error
+
+  // Notify Media Admins via WA
+  const { data: submission } = await supabase.from('content_submissions').select('title, upload_date').eq('id', id).single()
+  const { data: mediaAdmins } = await supabase
+    .from('profiles')
+    .select('phone_number')
+    .eq('role', 'media_admin')
+    .not('phone_number', 'is', null)
+
+  if (submission && mediaAdmins && mediaAdmins.length > 0) {
+    const message = `📝 *PENGAJUAN KONTEN BARU* 📝\n\nHalo Tim Media,\nAda pengajuan konten baru menunggu ulasan Anda!\n\n*Judul:* ${submission.title}\n*Tanggal Upload:* ${new Date(submission.upload_date).toLocaleDateString('id-ID')}\n\nSilakan cek dasbor untuk melihat detailnya.`;
+    
+    for (const admin of mediaAdmins) {
+      if (admin.phone_number) {
+        await sendWhatsAppMessage(admin.phone_number, message)
+      }
+    }
+  }
+
   revalidatePath('/pengajuan')
   revalidatePath(`/pengajuan/${id}`)
   return { success: true }

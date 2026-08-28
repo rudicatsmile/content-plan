@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { sendWhatsAppMessage } from '@/lib/wablas'
 
 export async function reviewSubmission(submissionId: string, decision: 'approved' | 'rejected', notes: string) {
   const supabase = await createClient()
@@ -65,7 +66,7 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
     })
 
     // 3b. Notify pimpinan
-    const { data: pimpinans } = await supabaseAdmin.from('profiles').select('id').eq('role', 'pimpinan') as any
+    const { data: pimpinans } = await supabaseAdmin.from('profiles').select('id, phone_number').eq('role', 'pimpinan') as any
     if (pimpinans && pimpinans.length > 0) {
       for (const p of pimpinans) {
         notificationPayloads.push({
@@ -79,6 +80,33 @@ export async function reviewSubmission(submissionId: string, decision: 'approved
 
     // Insert all notifications
     await supabaseAdmin.from('notifications').insert(notificationPayloads as any)
+
+    // 4. Send WhatsApp Notifications
+    const waMessage = decision === 'approved' 
+      ? `✅ *PENGAJUAN DISETUJUI* ✅\n\nHalo,\nPengajuan konten "${submission.title}" telah disetujui oleh Tim Media.\n\n*Catatan:* ${notes || '-'}\n\nSilakan cek dasbor untuk detail lebih lanjut.`
+      : `❌ *PENGAJUAN DITOLAK/REVISI* ❌\n\nHalo,\nPengajuan konten "${submission.title}" telah diperiksa oleh Tim Media dan membutuhkan revisi atau ditolak.\n\n*Catatan:* ${notes || '-'}\n\nSilakan cek dasbor untuk detail lebih lanjut.`;
+
+    const phonesToNotify = new Set<string>()
+
+    // Get creator phone
+    const { data: creatorProfile } = await supabaseAdmin.from('profiles').select('phone_number').eq('id', submission.created_by).single() as any
+    if (creatorProfile?.phone_number) {
+      phonesToNotify.add(creatorProfile.phone_number)
+    }
+
+    // Get pimpinan phones
+    if (pimpinans && pimpinans.length > 0) {
+      for (const p of pimpinans) {
+        if (p.phone_number) {
+          phonesToNotify.add(p.phone_number)
+        }
+      }
+    }
+
+    // Send to all unique phones
+    for (const phone of Array.from(phonesToNotify)) {
+      await sendWhatsAppMessage(phone, waMessage)
+    }
   }
 
     revalidatePath('/media/pengajuan')
