@@ -91,8 +91,7 @@ export async function createUser(data: CreateUserData) {
   const userId = authData.user.id
 
   // 2. Insert ke table profiles karena tidak ada trigger otomatis di schema
-  const { error: profileError } = await adminClient
-    .from('profiles')
+  const { error: profileError } = await (adminClient.from('profiles') as any)
     .insert({
       id: userId,
       email: data.email,
@@ -165,8 +164,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
   }
 
   if (Object.keys(profileUpdates).length > 0) {
-    const { error: profileError } = await adminClient
-      .from('profiles')
+    const { error: profileError } = await (adminClient.from('profiles') as any)
       .update(profileUpdates)
       .eq('id', id)
 
