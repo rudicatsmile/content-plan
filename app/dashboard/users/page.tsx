@@ -18,8 +18,7 @@ export default async function UsersPage() {
   }
 
   // Cek apakah user memiliki role yang valid (super_admin / media_admin)
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
     .single()

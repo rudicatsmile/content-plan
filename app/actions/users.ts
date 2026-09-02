@@ -10,8 +10,7 @@ async function checkAdminAccess() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: profile } = await (supabase.from('profiles') as any)
     .select('role')
     .eq('id', user.id)
     .single()
@@ -129,7 +128,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
   if (profile.role === 'media_admin') {
     // Media admin tidak boleh mengedit data super admin
     const supabase = await createClient()
-    const { data: targetProfile } = await supabase.from('profiles').select('role').eq('id', id).single()
+    const { data: targetProfile } = await (supabase.from('profiles') as any).select('role').eq('id', id).single()
     if (targetProfile?.role === 'super_admin') {
       throw new Error('Media Admin tidak diizinkan mengubah Super Admin')
     }
@@ -184,7 +183,7 @@ export async function deleteUser(id: string) {
   if (profile.role === 'media_admin') {
     // Media admin tidak boleh menghapus super admin
     const supabase = await createClient()
-    const { data: targetProfile } = await supabase.from('profiles').select('role').eq('id', id).single()
+    const { data: targetProfile } = await (supabase.from('profiles') as any).select('role').eq('id', id).single()
     if (targetProfile?.role === 'super_admin') {
       throw new Error('Media Admin tidak diizinkan menghapus Super Admin')
     }

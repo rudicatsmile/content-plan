@@ -94,7 +94,7 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
         }}
         eventContent={(eventInfo) => {
           return (
-            <HoverCard openDelay={200} closeDelay={100}>
+            <HoverCard>
               <HoverCardTrigger render={<div className="w-full h-full overflow-hidden truncate cursor-pointer block" />}>
                 {eventInfo.timeText && <b className="mr-1">{eventInfo.timeText}</b>}
                 <span>{eventInfo.event.title}</span>

@@ -84,10 +84,8 @@ export function AutoPostActions({ submission }: { submission: any }) {
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                Buka Platform <ExternalLink className="w-3 h-3 ml-2" />
-              </Button>
+            <DropdownMenuTrigger render={<Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100" />}>
+              Buka Platform <ExternalLink className="w-3 h-3 ml-2" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 z-[50]">
               {platforms.map((p, i) => (
