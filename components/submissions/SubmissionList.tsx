@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createClient } from '@/lib/supabase/client'
+import { ArrowRight } from 'lucide-react'
 
 export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }: { filters?: any, linkPrefix?: string, userRole?: string }) {
   const [selectedLembagaId, setSelectedLembagaId] = useState<string>('all')
@@ -123,7 +124,10 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                 <p>{format(new Date(sub.upload_date), 'dd MMM yyyy')}</p>
               </div>
               <Link href={`${linkPrefix}/${sub.id}`}>
-                <Button variant="outline" size="sm">Detail</Button>
+                <Button variant="ghost" size="sm" className="rounded-full bg-blue-50/80 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all group px-4 border border-blue-100">
+                  Lihat
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-1" />
+                </Button>
               </Link>
             </div>
           </div>
@@ -175,7 +179,10 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`${linkPrefix}/${sub.id}`}>
-                      <Button variant="ghost" size="sm">Detail</Button>
+                      <Button variant="ghost" size="sm" className="rounded-full bg-blue-50/80 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all group px-4 border border-blue-100">
+                        Lihat
+                        <ArrowRight className="w-3.5 h-3.5 ml-1.5 transition-transform group-hover:translate-x-1" />
+                      </Button>
                     </Link>
                   </TableCell>
                 </TableRow>
