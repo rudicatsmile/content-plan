@@ -185,3 +185,70 @@ export async function cancelSubmission(id: string) {
   revalidatePath('/pengajuan')
   return { success: true }
 }
+
+export async function setPublishPermission(id: string, permission: 'diizinkan' | 'ditolak', notes?: string) {
+  const supabase = await createClient()
+  
+  // Verify user is pimpinan
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  
+  const { data: profile } = await (supabase.from('profiles') as any).select('role').eq('id', user.id).single()
+  if (profile?.role !== 'pimpinan' && profile?.role !== 'super_admin') {
+    throw new Error('Hanya Pimpinan yang dapat memberikan izin tayang')
+  }
+
+  // Send WhatsApp Notification to media_admin and lembaga_admin
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // Update submission publish permission using Admin client to bypass RLS
+  const { error } = await (supabaseAdmin.from('content_submissions') as any)
+    .update({ 
+      publish_permission: permission,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+
+  if (error) throw error
+  
+  // Create a review record to log this permission action
+  await (supabaseAdmin.from('submission_reviews') as any).insert({
+    submission_id: id,
+    reviewer_id: user.id,
+    decision: permission === 'diizinkan' ? 'approved' : 'rejected',
+    notes: notes || `Izin tayang ${permission === 'diizinkan' ? 'diberikan' : 'ditolak'} oleh Pimpinan.`
+  })
+
+
+  const { data: submission } = await (supabaseAdmin.from('content_submissions') as any).select('title, lembaga_id').eq('id', id).single()
+  
+  if (submission) {
+    const message = `📢 *KEPUTUSAN IZIN TAYANG* 📢\n\nStatus izin tayang untuk konten *${submission.title}* telah diputuskan menjadi: *${permission.toUpperCase()}* oleh Pimpinan.`
+    
+    const { data: mediaAdmins } = await (supabaseAdmin.from('profiles') as any)
+      .select('phone_number')
+      .eq('role', 'media_admin')
+      .not('phone_number', 'is', null)
+      
+    const { data: lembagaAdmins } = await (supabaseAdmin.from('profiles') as any)
+      .select('phone_number')
+      .eq('role', 'lembaga_admin')
+      .eq('lembaga_id', submission.lembaga_id)
+      .not('phone_number', 'is', null)
+
+    const phoneNumbers = new Set<string>()
+    if (mediaAdmins) mediaAdmins.forEach((a: any) => a.phone_number && phoneNumbers.add(a.phone_number))
+    if (lembagaAdmins) lembagaAdmins.forEach((a: any) => a.phone_number && phoneNumbers.add(a.phone_number))
+
+    for (const phone of phoneNumbers) {
+      await sendWhatsAppMessage(phone, message)
+    }
+  }
+
+  revalidatePath('/pengajuan')
+  revalidatePath(`/pengajuan/${id}`)
+  return { success: true }
+}

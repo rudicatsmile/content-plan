@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { Loader2 } from 'lucide-react'
-import { cancelSubmission, submitSubmission } from '@/app/actions/submissions'
+import { cancelSubmission, submitSubmission, setPublishPermission } from '@/app/actions/submissions'
 import Link from 'next/link'
+import { AutoPostActions } from './AutoPostActions'
 
-export function SubmissionDetail({ id }: { id: string }) {
+export function SubmissionDetail({ id, userRole }: { id: string, userRole?: string }) {
   const { data: submissionRaw, isLoading, refetch } = useSubmission(id)
   const submission = submissionRaw as any
 
@@ -42,9 +43,16 @@ export function SubmissionDetail({ id }: { id: string }) {
           </div>
           <p className="text-muted-foreground mt-1">{submission.lembaga?.name}</p>
         </div>
-        <Badge variant={submission.status === 'draft' ? 'secondary' : submission.status === 'approved' ? 'default' : 'outline'}>
-          {submission.status.replace('_', ' ').toUpperCase()}
-        </Badge>
+        <div className="flex flex-col gap-2 items-end">
+          <Badge variant={submission.status === 'draft' ? 'secondary' : submission.status === 'approved' ? 'default' : 'outline'}>
+            {submission.status.replace('_', ' ').toUpperCase()}
+          </Badge>
+          {submission.status === 'approved' && submission.publish_permission && (
+            <Badge variant={submission.publish_permission === 'diizinkan' ? 'default' : submission.publish_permission === 'ditolak' ? 'destructive' : 'secondary'} className={submission.publish_permission === 'diizinkan' ? 'bg-green-600' : ''}>
+              Izin Tayang: {submission.publish_permission.toUpperCase()}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {submission.media_urls && submission.media_urls.length > 0 && (
@@ -130,27 +138,66 @@ export function SubmissionDetail({ id }: { id: string }) {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-4 pt-4 border-t">
-        {(submission.status === 'planning' || submission.status === 'draft' || submission.status === 'pending_review') && (
-          <Link href={`/pengajuan/${id}/edit`}>
-            <Button variant="outline">Edit Pengajuan</Button>
-          </Link>
-        )}
-        
-        {submission.status === 'planning' && (
-          <Button variant="destructive" onClick={handleCancel}>Hapus Rencana</Button>
-        )}
+      {userRole === 'lembaga_admin' && (
+        <div className="flex flex-wrap gap-4 pt-4 border-t">
+          {(submission.status === 'planning' || submission.status === 'draft' || submission.status === 'pending_review') && (
+            <Link href={`/pengajuan/${id}/edit`}>
+              <Button variant="outline">Edit Pengajuan</Button>
+            </Link>
+          )}
+          
+          {submission.status === 'planning' && (
+            <Button variant="destructive" onClick={handleCancel}>Hapus Rencana</Button>
+          )}
 
-        {submission.status === 'draft' && (
-          <>
-            <Button onClick={handleSubmit}>Ajukan Sekarang</Button>
-            <Button variant="destructive" onClick={handleCancel}>Hapus Draft</Button>
-          </>
-        )}
-        {submission.status === 'pending_review' && (
-          <Button variant="destructive" onClick={handleCancel}>Batalkan Pengajuan</Button>
-        )}
-      </div>
+          {submission.status === 'draft' && (
+            <>
+              <Button onClick={handleSubmit}>Ajukan Sekarang</Button>
+              <Button variant="destructive" onClick={handleCancel}>Hapus Draft</Button>
+            </>
+          )}
+          {submission.status === 'pending_review' && (
+            <Button variant="destructive" onClick={handleCancel}>Batalkan Pengajuan</Button>
+          )}
+        </div>
+      )}
+
+      {(userRole === 'pimpinan' || userRole === 'super_admin') && submission.status === 'approved' && submission.publish_permission === 'menunggu' && (
+        <div className="bg-slate-50 p-6 rounded-lg border mt-8">
+          <h3 className="text-lg font-bold mb-4">Keputusan Izin Tayang</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Konten ini telah disetujui oleh Media Admin. Silakan berikan izin apakah konten ini boleh ditayangkan.
+          </p>
+          <div className="flex gap-4">
+            <Button 
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={async () => {
+                if (confirm('Izinkan tayang konten ini?')) {
+                  await setPublishPermission(id, 'diizinkan')
+                  refetch()
+                }
+              }}
+            >
+              Izinkan Tayang
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={async () => {
+                if (confirm('Tolak izin tayang konten ini?')) {
+                  await setPublishPermission(id, 'ditolak')
+                  refetch()
+                }
+              }}
+            >
+              Tolak Tayang
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {(userRole === 'media_admin' || userRole === 'super_admin' || userRole === 'lembaga_admin') && submission.status === 'approved' && submission.publish_permission === 'diizinkan' && (
+        <AutoPostActions submission={submission} />
+      )}
     </div>
   )
 }

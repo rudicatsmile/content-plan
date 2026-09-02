@@ -12,12 +12,13 @@ import { createClient } from '@/lib/supabase/client'
 
 export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }: { filters?: any, linkPrefix?: string, userRole?: string }) {
   const [selectedLembagaId, setSelectedLembagaId] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [lembagasList, setLembagasList] = useState<any[]>([])
   
   const supabase = createClient()
 
   useEffect(() => {
-    if (userRole === 'super_admin' || userRole === 'media_admin') {
+    if (userRole !== 'lembaga_admin') {
       supabase.from('lembaga').select('id, name').order('sort_order', { ascending: true }).then(({ data }) => {
         if (data) setLembagasList(data)
       })
@@ -26,7 +27,8 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
 
   const effectiveFilters = {
     ...filters,
-    ...(selectedLembagaId !== 'all' ? { lembagaId: selectedLembagaId } : {})
+    ...(selectedLembagaId !== 'all' ? { lembagaId: selectedLembagaId } : {}),
+    ...(selectedStatus !== 'all' ? { status: selectedStatus } : {})
   }
 
   const { data: submissionsRaw, isLoading } = useSubmissions(effectiveFilters)
@@ -36,11 +38,27 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
 
   const showLembagaColumn = userRole !== 'lembaga_admin'
 
+  const getBadgeProps = (status: string, publish_permission: string) => {
+    if (status === 'approved' && publish_permission === 'diizinkan') {
+      return { variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700', label: 'SIAP TAYANG' };
+    }
+    if (status === 'approved' && publish_permission === 'ditolak') {
+      return { variant: 'destructive' as const, className: '', label: 'TIDAK DIIZINKAN' };
+    }
+    if (status === 'approved') {
+      return { variant: 'default' as const, className: '', label: 'APPROVED' };
+    }
+    if (status === 'draft') return { variant: 'secondary' as const, className: '', label: 'DRAFT' };
+    if (status === 'planning') return { variant: 'outline' as const, className: 'bg-blue-100 text-blue-800 hover:bg-blue-200', label: 'PLANNING' };
+    if (status === 'pending_review') return { variant: 'destructive' as const, className: '', label: 'PENDING REVIEW' };
+    return { variant: 'destructive' as const, className: '', label: status.replace('_', ' ').toUpperCase() };
+  }
+
   return (
     <div className="space-y-4">
       {/* Filters */}
-      {(userRole === 'super_admin' || userRole === 'media_admin') && (
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
+        {userRole !== 'lembaga_admin' && (
           <div className="w-[250px]">
             <Select value={selectedLembagaId} onValueChange={(val) => setSelectedLembagaId(val || 'all')}>
               <SelectTrigger>
@@ -58,8 +76,26 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
               </SelectContent>
             </Select>
           </div>
+        )}
+
+        <div className="w-[200px]">
+          <Select value={selectedStatus} onValueChange={(val) => setSelectedStatus(val || 'all')}>
+            <SelectTrigger>
+              <SelectValue placeholder="Semua Status">
+                {selectedStatus === 'all' ? 'Semua Status' : selectedStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="pending_review">Pending Review</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="approved_with_notes">Approved with Notes</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
@@ -72,9 +108,14 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                   <Badge variant="destructive" className="w-fit text-[10px] h-4 px-1.5 leading-none">URGENT</Badge>
                 )}
               </div>
-              <Badge variant={sub.status === 'draft' ? 'secondary' : sub.status === 'approved' ? 'default' : sub.status === 'planning' ? 'outline' : 'destructive'} className={sub.status === 'planning' ? 'bg-blue-100 text-blue-800 shrink-0' : 'shrink-0'}>
-                {sub.status.replace('_', ' ')}
-              </Badge>
+              {(() => {
+                const badge = getBadgeProps(sub.status, sub.publish_permission)
+                return (
+                  <Badge variant={badge.variant} className={`${badge.className} shrink-0`}>
+                    {badge.label}
+                  </Badge>
+                )
+              })()}
             </div>
             <div className="flex justify-between items-end">
               <div className="text-sm text-slate-500 space-y-1">
@@ -123,9 +164,14 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                   )}
                   <TableCell>{format(new Date(sub.upload_date), 'dd MMM yyyy')}</TableCell>
                   <TableCell>
-                    <Badge variant={sub.status === 'draft' ? 'secondary' : sub.status === 'approved' ? 'default' : sub.status === 'planning' ? 'outline' : 'destructive'} className={sub.status === 'planning' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : ''}>
-                      {sub.status.replace('_', ' ')}
-                    </Badge>
+                    {(() => {
+                      const badge = getBadgeProps(sub.status, sub.publish_permission)
+                      return (
+                        <Badge variant={badge.variant} className={badge.className}>
+                          {badge.label}
+                        </Badge>
+                      )
+                    })()}
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`${linkPrefix}/${sub.id}`}>

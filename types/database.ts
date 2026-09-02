@@ -62,6 +62,7 @@ export interface Database {
     Enums: {
       user_role: 'super_admin' | 'media_admin' | 'lembaga_admin' | 'pimpinan'
       submission_status: 'draft' | 'pending_review' | 'approved' | 'approved_with_notes' | 'rejected'
+      publish_permission_status: 'menunggu' | 'diizinkan' | 'ditolak'
     }
   }
 }

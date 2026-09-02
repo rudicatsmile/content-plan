@@ -9,6 +9,7 @@ export function useSubmissions(filters?: { status?: string; lembagaId?: string }
     queryFn: async () => {
       let query = supabase.from('content_submissions').select(`
         *,
+        publish_permission,
         lembaga:lembaga(name),
         content_types(name),
         platforms:content_submission_platforms(social_platforms(id, name))
@@ -38,6 +39,7 @@ export function useSubmission(id: string) {
         .from('content_submissions')
         .select(`
           *,
+          publish_permission,
           lembaga:lembaga(name),
           content_types(name),
           platforms:content_submission_platforms(social_platforms(id, name, icon_url)),

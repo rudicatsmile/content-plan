@@ -34,7 +34,7 @@ export default async function MediaSubmissionDetailPage({ params }: { params: Pr
       </div>
 
       <div className="bg-white p-8 rounded-xl shadow-sm border">
-        <SubmissionDetail id={resolvedParams.id} />
+        <SubmissionDetail id={resolvedParams.id} userRole={profile.role} />
       </div>
 
       {submission?.status === 'pending_review' && (

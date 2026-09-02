@@ -31,10 +31,22 @@ export async function Navbar() {
     <nav className="border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0 flex items-center">
+          <div className="flex items-center gap-6">
             <Link href="/dashboard" className="text-xl font-bold text-slate-800">
               Content Plan
             </Link>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex space-x-1">
+              <Link href="/dashboard" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                Dashboard
+              </Link>
+              {(profileData?.role === 'super_admin' || profileData?.role === 'media_admin') && (
+                <Link href="/dashboard/users" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  Pengelolaan User
+                </Link>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             {userName && (

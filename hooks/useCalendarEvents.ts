@@ -8,7 +8,7 @@ export function useCalendarEvents(filters: { lembagaId: string; platformId: stri
     queryKey: ['calendar_events', filters],
     queryFn: async () => {
       let query = supabase.from('content_submissions').select(`
-        id, title, upload_date, status, lembaga_id, priority,
+        id, title, upload_date, status, lembaga_id, priority, description,
         lembaga:lembaga_id(name)
       `) as any
 
@@ -52,7 +52,8 @@ export function useCalendarEvents(filters: { lembagaId: string; platformId: stri
           extendedProps: {
             status: sub.status,
             lembaga_id: sub.lembaga_id,
-            priority: sub.priority
+            priority: sub.priority,
+            description: sub.description
           }
         }
       })

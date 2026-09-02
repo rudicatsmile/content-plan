@@ -11,6 +11,11 @@ import { useCalendarFilterStore } from '@/hooks/useCalendarFilterStore'
 import { useState } from 'react'
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
 import { SubmissionDetail } from '@/components/submissions/SubmissionDetail'
 import { ReviewForm } from '@/components/submissions/ReviewForm'
 import { useQueryClient } from '@tanstack/react-query'
@@ -86,6 +91,36 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
           hour: '2-digit',
           minute: '2-digit',
           meridiem: false
+        }}
+        eventContent={(eventInfo) => {
+          return (
+            <HoverCard openDelay={200} closeDelay={100}>
+              <HoverCardTrigger render={<div className="w-full h-full overflow-hidden truncate cursor-pointer block" />}>
+                {eventInfo.timeText && <b className="mr-1">{eventInfo.timeText}</b>}
+                <span>{eventInfo.event.title}</span>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 p-4 z-[9999]" align="start" side="right">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold leading-tight">{eventInfo.event.title}</h4>
+                  
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="font-medium bg-muted px-2 py-0.5 rounded capitalize">
+                      {eventInfo.event.extendedProps.status.replace('_', ' ')}
+                    </span>
+                    {eventInfo.event.extendedProps.priority === 'urgent' && (
+                      <span className="font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded">
+                        Urgent
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">
+                    {eventInfo.event.extendedProps.description || 'Tidak ada deskripsi.'}
+                  </p>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          )
         }}
       />
 
