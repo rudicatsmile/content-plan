@@ -1,19 +1,20 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 
 export function useSubmissions(filters?: { status?: string; lembagaId?: string }) {
   const supabase = createClient()
+  const PAGE_SIZE = 15
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['submissions', filters],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       let query = supabase.from('content_submissions').select(`
         *,
         publish_permission,
         lembaga:lembaga(name),
         content_types(name),
         platforms:content_submission_platforms(social_platforms(id, name))
-      `).order('upload_date', { ascending: true })
+      `).order('upload_date', { ascending: false })
 
       if (filters?.status) {
         query = query.eq('status', filters.status)
@@ -22,10 +23,17 @@ export function useSubmissions(filters?: { status?: string; lembagaId?: string }
         query = query.eq('lembaga_id', filters.lembagaId)
       }
 
-      const { data, error } = await query
+      const from = pageParam * PAGE_SIZE
+      const to = from + PAGE_SIZE - 1
+
+      const { data, error } = await query.range(from, to)
       if (error) throw error
       return data
     },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === PAGE_SIZE ? allPages.length : undefined
+    }
   })
 }
 

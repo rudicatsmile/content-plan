@@ -9,7 +9,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import { useInView } from 'react-intersection-observer'
 
 export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }: { filters?: any, linkPrefix?: string, userRole?: string }) {
   const [selectedLembagaId, setSelectedLembagaId] = useState<string>('all')
@@ -32,10 +33,18 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
     ...(selectedStatus !== 'all' ? { status: selectedStatus } : {})
   }
 
-  const { data: submissionsRaw, isLoading } = useSubmissions(effectiveFilters)
-  const submissions = submissionsRaw as any[]
+  const { data: submissionsRaw, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSubmissions(effectiveFilters)
+  const submissions = submissionsRaw?.pages?.flatMap((page: any) => page) || []
 
-  if (isLoading) return <div className="p-8 text-center">Loading...</div>
+  const { ref, inView } = useInView()
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  if (isLoading && submissions.length === 0) return <div className="p-8 text-center flex flex-col items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-500 mb-2" /> Memuat data...</div>
 
   const showLembagaColumn = userRole !== 'lembaga_admin'
 
@@ -100,9 +109,12 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
-        {submissions?.map((sub) => (
-          <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3">
-            <div className="flex justify-between items-start gap-2">
+        {submissions?.map((sub, index) => (
+          <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3 relative">
+            <div className="absolute top-4 left-4 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+              {index + 1}
+            </div>
+            <div className="flex justify-between items-start gap-2 pl-8">
               <div className="flex flex-col gap-1">
                 <h3 className="font-medium text-slate-800 leading-tight">{sub.title}</h3>
                 {sub.priority === 'urgent' && (
@@ -145,6 +157,7 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
           <Table className="min-w-[800px]">
             <TableHeader className="bg-slate-50">
               <TableRow>
+                <TableHead className="w-[50px] text-center">No.</TableHead>
                 <TableHead>Judul</TableHead>
                 {showLembagaColumn && <TableHead>Lembaga</TableHead>}
                 <TableHead>Tanggal Upload</TableHead>
@@ -153,8 +166,9 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions?.map((sub) => (
+              {submissions?.map((sub, index) => (
                 <TableRow key={sub.id}>
+                  <TableCell className="text-center font-medium text-slate-500">{index + 1}</TableCell>
                   <TableCell className="font-medium">
                     <div className="flex flex-col gap-1 items-start">
                       <span>{sub.title}</span>
@@ -187,9 +201,9 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                   </TableCell>
                 </TableRow>
               ))}
-              {!submissions?.length && (
+              {!submissions?.length && !isLoading && (
                 <TableRow>
-                  <TableCell colSpan={showLembagaColumn ? 5 : 4} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={showLembagaColumn ? 6 : 5} className="text-center h-24 text-muted-foreground">
                     Belum ada data pengajuan
                   </TableCell>
                 </TableRow>
@@ -198,6 +212,19 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
           </Table>
         </div>
       </div>
+
+      {/* Infinite Scroll Trigger */}
+      {hasNextPage && (
+        <div ref={ref} className="flex justify-center p-4">
+          {isFetchingNextPage ? (
+            <div className="flex items-center text-slate-500 gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Memuat data lama...
+            </div>
+          ) : (
+            <div className="h-4" />
+          )}
+        </div>
+      )}
     </div>
   )
 }
