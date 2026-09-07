@@ -5,6 +5,7 @@ import { logout } from '@/app/(auth)/login/actions'
 import { Button } from '@/components/ui/button'
 import { LogOut, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { MobileNav } from './mobile-nav'
 
 export async function Navbar() {
   const supabase = await createClient()
@@ -28,6 +29,7 @@ export async function Navbar() {
   }
 
   return (
+    <>
     <nav className="border-b bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
@@ -83,5 +85,7 @@ export async function Navbar() {
         </div>
       </div>
     </nav>
+    <MobileNav role={profileData?.role} user={user} profileData={profileData} />
+    </>
   )
 }
