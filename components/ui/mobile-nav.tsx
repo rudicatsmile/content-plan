@@ -62,8 +62,8 @@ export function MobileNav({ role, user, profileData }: MobileNavProps) {
         {/* PIMPINAN MENUS */}
         {role === 'pimpinan' && (
           <>
-            <Link href="/media/pengajuan" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/media/pengajuan') ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900'}`}>
-              <CheckSquare className={`w-5 h-5 ${isActive('/media/pengajuan') ? 'fill-blue-100' : ''}`} />
+            <Link href="/pengajuan" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/pengajuan') ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900'}`}>
+              <CheckSquare className={`w-5 h-5 ${isActive('/pengajuan') ? 'fill-blue-100' : ''}`} />
               <span className="text-[10px] font-medium">Persetujuan</span>
             </Link>
           </>
