@@ -110,16 +110,11 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
       {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
         {submissions?.map((sub, index) => (
-          <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3 relative">
-            <div className="absolute top-4 left-4 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
-              {index + 1}
-            </div>
-            <div className="flex justify-between items-start gap-2 pl-8">
-              <div className="flex flex-col gap-1">
-                <h3 className="font-medium text-slate-800 leading-tight">{sub.title}</h3>
-                {sub.priority === 'urgent' && (
-                  <Badge variant="destructive" className="w-fit text-[10px] h-4 px-1.5 leading-none">URGENT</Badge>
-                )}
+          <div key={sub.id} className="bg-white p-4 rounded-lg shadow-sm border flex flex-col gap-3">
+            {/* Top Row: Number and Badge */}
+            <div className="flex justify-between items-start gap-2">
+              <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500 shrink-0">
+                {index + 1}
               </div>
               {(() => {
                 const badge = getBadgeProps(sub.status, sub.publish_permission)
@@ -129,6 +124,14 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                   </Badge>
                 )
               })()}
+            </div>
+            
+            {/* Title Row */}
+            <div className="flex flex-col gap-1.5">
+              <h3 className="font-medium text-slate-800 leading-tight break-words">{sub.title}</h3>
+              {sub.priority === 'urgent' && (
+                <Badge variant="destructive" className="w-fit text-[10px] h-4 px-1.5 leading-none">URGENT</Badge>
+              )}
             </div>
             <div className="flex justify-between items-end">
               <div className="text-sm text-slate-500 space-y-1">
