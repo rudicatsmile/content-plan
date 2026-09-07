@@ -70,7 +70,7 @@ export function ReviewForm({ submissionId }: { submissionId: string }) {
           )}
         />
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             type="button"
             className="bg-green-600 hover:bg-green-700"

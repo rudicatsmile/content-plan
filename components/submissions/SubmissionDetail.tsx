@@ -33,17 +33,17 @@ export function SubmissionDetail({ id, userRole }: { id: string, userRole?: stri
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold">{submission.title}</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex items-start gap-3">
+            <h2 className="text-2xl font-bold break-words leading-tight">{submission.title}</h2>
             {submission.priority === 'urgent' && (
-              <Badge variant="destructive" className="h-6 mt-1">URGENT</Badge>
+              <Badge variant="destructive" className="h-6 mt-1 shrink-0">URGENT</Badge>
             )}
           </div>
-          <p className="text-muted-foreground mt-1">{submission.lembaga?.name}</p>
+          <p className="text-muted-foreground mt-2">{submission.lembaga?.name}</p>
         </div>
-        <div className="flex flex-col gap-2 items-end">
+        <div className="flex flex-wrap sm:flex-col gap-2 sm:items-end shrink-0">
           <Badge variant={submission.status === 'draft' ? 'secondary' : submission.status === 'approved' ? 'default' : 'outline'}>
             {submission.status.replace('_', ' ').toUpperCase()}
           </Badge>
@@ -168,7 +168,7 @@ export function SubmissionDetail({ id, userRole }: { id: string, userRole?: stri
           <p className="text-sm text-gray-600 mb-4">
             Konten ini telah disetujui oleh Media Admin. Silakan berikan izin apakah konten ini boleh ditayangkan.
           </p>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               className="bg-green-600 hover:bg-green-700 text-white"
               onClick={async () => {
