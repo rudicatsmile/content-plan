@@ -139,8 +139,11 @@ export async function updateUser(id: string, data: UpdateUserData) {
 
   // 1. Update Auth (Email atau Password jika ada)
   if (data.email || data.password) {
-    const authUpdates: { email?: string, password?: string, user_metadata?: any } = {}
-    if (data.email) authUpdates.email = data.email
+    const authUpdates: { email?: string, password?: string, user_metadata?: any, email_confirm?: boolean } = {}
+    if (data.email) {
+      authUpdates.email = data.email
+      authUpdates.email_confirm = true
+    }
     if (data.password) authUpdates.password = data.password
     if (data.full_name) authUpdates.user_metadata = { full_name: data.full_name }
 
@@ -154,6 +157,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
 
   // 2. Update Profile
   const profileUpdates: any = {}
+  if (data.email !== undefined) profileUpdates.email = data.email
   if (data.full_name !== undefined) profileUpdates.full_name = data.full_name
   if (data.phone_number !== undefined) profileUpdates.phone_number = data.phone_number
   if (data.role !== undefined) profileUpdates.role = data.role
