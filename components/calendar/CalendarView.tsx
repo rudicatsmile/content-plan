@@ -71,7 +71,7 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
   if (!isMounted) return null
 
   return (
-    <div className="bg-white p-2 md:p-4 rounded-xl shadow-sm border relative min-h-[600px] calendar-wrapper text-sm md:text-base overflow-hidden">
+    <div className="bg-white p-2 md:p-4 rounded-xl shadow-sm border relative min-h-[600px] calendar-wrapper text-sm md:text-base overflow-x-auto">
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin] as any}
         initialView={initialView}
@@ -93,11 +93,25 @@ export function CalendarView({ userRole, userLembagaId }: { userRole: string, us
           meridiem: false
         }}
         eventContent={(eventInfo) => {
+          const content = (
+            <>
+              {eventInfo.timeText && <b className="mr-1">{eventInfo.timeText}</b>}
+              <span>{eventInfo.event.title}</span>
+            </>
+          )
+
+          if (isMobile || eventInfo.view.type === 'listWeek') {
+            return (
+              <div className="w-full h-full cursor-pointer whitespace-normal break-words leading-tight py-1">
+                {content}
+              </div>
+            )
+          }
+
           return (
             <HoverCard>
               <HoverCardTrigger render={<div className="w-full h-full overflow-hidden truncate cursor-pointer block" />}>
-                {eventInfo.timeText && <b className="mr-1">{eventInfo.timeText}</b>}
-                <span>{eventInfo.event.title}</span>
+                {content}
               </HoverCardTrigger>
               <HoverCardContent className="w-80 p-4 z-[9999]" align="start" side="right">
                 <div className="space-y-2">
