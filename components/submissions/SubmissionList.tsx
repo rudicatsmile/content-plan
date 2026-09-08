@@ -106,6 +106,7 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="pending_review">Pending Review</SelectItem>
               <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="siap_tayang">Siap Tayang</SelectItem>
               <SelectItem value="approved_with_notes">Approved with Notes</SelectItem>
               <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>

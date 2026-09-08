@@ -17,7 +17,11 @@ export function useSubmissions(filters?: { status?: string; lembagaId?: string }
       `).order('upload_date', { ascending: false })
 
       if (filters?.status) {
-        query = query.eq('status', filters.status)
+        if (filters.status === 'siap_tayang') {
+          query = query.eq('status', 'approved').eq('publish_permission', 'diizinkan')
+        } else {
+          query = query.eq('status', filters.status)
+        }
       }
       if (filters?.lembagaId) {
         query = query.eq('lembaga_id', filters.lembagaId)
