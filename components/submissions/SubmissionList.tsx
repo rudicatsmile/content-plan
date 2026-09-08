@@ -13,8 +13,8 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import { useInView } from 'react-intersection-observer'
 
 export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }: { filters?: any, linkPrefix?: string, userRole?: string }) {
-  const [selectedLembagaId, setSelectedLembagaId] = useState<string>('all')
-  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [selectedLembagaId, setSelectedLembagaId] = useState<string>(filters?.lembagaId || 'all')
+  const [selectedStatus, setSelectedStatus] = useState<string>(filters?.status || 'all')
   const [lembagasList, setLembagasList] = useState<any[]>([])
   
   const supabase = createClient()
@@ -27,10 +27,16 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
     }
   }, [userRole, supabase])
 
-  const effectiveFilters = {
-    ...filters,
-    ...(selectedLembagaId !== 'all' ? { lembagaId: selectedLembagaId } : {}),
-    ...(selectedStatus !== 'all' ? { status: selectedStatus } : {})
+  const effectiveFilters = { ...filters }
+  if (selectedLembagaId !== 'all') {
+    effectiveFilters.lembagaId = selectedLembagaId
+  } else {
+    delete effectiveFilters.lembagaId
+  }
+  if (selectedStatus !== 'all') {
+    effectiveFilters.status = selectedStatus
+  } else {
+    delete effectiveFilters.status
   }
 
   const { data: submissionsRaw, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSubmissions(effectiveFilters)
