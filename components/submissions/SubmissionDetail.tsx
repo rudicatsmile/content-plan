@@ -1,8 +1,10 @@
 'use client'
 
 import { useSubmission } from '@/hooks/useSubmissions'
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { format } from 'date-fns'
 import { Loader2 } from 'lucide-react'
 import { cancelSubmission, submitSubmission, setPublishPermission } from '@/app/actions/submissions'
@@ -10,6 +12,8 @@ import Link from 'next/link'
 import { AutoPostActions } from './AutoPostActions'
 
 export function SubmissionDetail({ id, userRole }: { id: string, userRole?: string }) {
+  const [rejectNotes, setRejectNotes] = useState('')
+  const [showRejectInput, setShowRejectInput] = useState(false)
   const { data: submissionRaw, isLoading, refetch } = useSubmission(id)
   const submission = submissionRaw as any
 
@@ -169,28 +173,49 @@ export function SubmissionDetail({ id, userRole }: { id: string, userRole?: stri
             Konten ini telah disetujui oleh Media Admin. Silakan berikan izin apakah konten ini boleh ditayangkan.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
-              onClick={async () => {
-                if (confirm('Izinkan tayang konten ini?')) {
-                  await setPublishPermission(id, 'diizinkan')
-                  refetch()
-                }
-              }}
-            >
-              Izinkan Tayang
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={async () => {
-                if (confirm('Tolak izin tayang konten ini?')) {
-                  await setPublishPermission(id, 'ditolak')
-                  refetch()
-                }
-              }}
-            >
-              Tolak Tayang
-            </Button>
+            {showRejectInput ? (
+              <div className="flex flex-col gap-2 w-full">
+                <Textarea 
+                  placeholder="Berikan alasan kenapa konten ini ditolak untuk tayang..." 
+                  value={rejectNotes} 
+                  onChange={(e) => setRejectNotes(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    variant="destructive"
+                    onClick={async () => {
+                      if (!rejectNotes.trim()) return alert('Alasan penolakan wajib diisi')
+                      await setPublishPermission(id, 'ditolak', rejectNotes)
+                      setShowRejectInput(false)
+                      refetch()
+                    }}
+                  >
+                    Konfirmasi Tolak
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowRejectInput(false)}>Batal</Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Button 
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={async () => {
+                    if (confirm('Izinkan tayang konten ini?')) {
+                      await setPublishPermission(id, 'diizinkan')
+                      refetch()
+                    }
+                  }}
+                >
+                  Izinkan Tayang
+                </Button>
+                <Button 
+                  variant="destructive"
+                  onClick={() => setShowRejectInput(true)}
+                >
+                  Tolak Tayang
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
