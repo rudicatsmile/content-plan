@@ -19,6 +19,8 @@ export function useSubmissions(filters?: { status?: string; lembagaId?: string }
       if (filters?.status) {
         if (filters.status === 'siap_tayang') {
           query = query.eq('status', 'approved').eq('publish_permission', 'diizinkan')
+        } else if (filters.status === 'approved') {
+          query = query.eq('status', 'approved').or('publish_permission.neq.diizinkan,publish_permission.is.null')
         } else {
           query = query.eq('status', filters.status)
         }
