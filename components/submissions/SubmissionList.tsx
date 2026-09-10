@@ -16,7 +16,7 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
   const [selectedLembagaId, setSelectedLembagaId] = useState<string>(filters?.lembagaId || 'all')
   const [selectedStatus, setSelectedStatus] = useState<string>(filters?.status || 'all')
   const [lembagasList, setLembagasList] = useState<any[]>([])
-  
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -73,42 +73,42 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-4">
         {userRole !== 'lembaga_admin' && (
-          <div className="w-[250px]">
+          <div className="w-full sm:w-[200px]">
             <Select value={selectedLembagaId} onValueChange={(val) => setSelectedLembagaId(val || 'all')}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 bg-white border-slate-200 shadow-sm hover:border-blue-400 hover:ring-1 hover:ring-blue-100 transition-all rounded-lg text-slate-700">
                 <SelectValue placeholder="Semua Lembaga">
-                  {selectedLembagaId === 'all' 
-                    ? 'Semua Lembaga' 
+                  {selectedLembagaId === 'all'
+                    ? 'Semua Lembaga'
                     : lembagasList.find(l => l.id === selectedLembagaId)?.name || 'Semua Lembaga'}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Lembaga</SelectItem>
+              <SelectContent className="rounded-lg shadow-lg border-slate-100">
+                <SelectItem value="all" className="cursor-pointer py-2.5">Semua Lembaga</SelectItem>
                 {lembagasList.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                  <SelectItem key={l.id} value={l.id} className="cursor-pointer py-2.5">{l.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         )}
 
-        <div className="w-[200px]">
+        <div className="w-full sm:w-[200px]">
           <Select value={selectedStatus} onValueChange={(val) => setSelectedStatus(val || 'all')}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11 bg-white border-slate-200 shadow-sm hover:border-blue-400 hover:ring-1 hover:ring-blue-100 transition-all rounded-lg text-slate-700">
               <SelectValue placeholder="Semua Status">
                 {selectedStatus === 'all' ? 'Semua Status' : selectedStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="pending_review">Pending Review</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="siap_tayang">Siap Tayang</SelectItem>
-              <SelectItem value="approved_with_notes">Approved with Notes</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectContent className="rounded-lg shadow-lg border-slate-100">
+              <SelectItem value="all" className="cursor-pointer py-2.5">Semua Status</SelectItem>
+              <SelectItem value="draft" className="cursor-pointer py-2.5">Draft</SelectItem>
+              <SelectItem value="pending_review" className="cursor-pointer py-2.5">Pending Review</SelectItem>
+              <SelectItem value="approved" className="cursor-pointer py-2.5">Approved</SelectItem>
+              <SelectItem value="siap_tayang" className="cursor-pointer py-2.5">Siap Tayang</SelectItem>
+              {/* <SelectItem value="approved_with_notes" className="cursor-pointer py-2.5">Approved with Notes</SelectItem> */}
+              <SelectItem value="rejected" className="cursor-pointer py-2.5">Rejected</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -132,7 +132,7 @@ export function SubmissionList({ filters, linkPrefix = '/pengajuan', userRole }:
                 )
               })()}
             </div>
-            
+
             {/* Title Row */}
             <div className="flex flex-col gap-1.5">
               <h3 className="font-medium text-slate-800 leading-tight break-words">{sub.title}</h3>
