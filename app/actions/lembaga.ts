@@ -5,8 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export async function getLembagas() {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('lembaga')
+  const { data, error } = await (supabase.from('lembaga') as any)
     .select('*')
     .order('sort_order', { ascending: true })
 
@@ -19,7 +18,7 @@ export async function getLembagas() {
 
 export async function createLembaga(data: { name: string; sort_order: number }) {
   const supabase = await createClient()
-  const { error } = await supabase.from('lembaga').insert({
+  const { error } = await (supabase.from('lembaga') as any).insert({
     name: data.name,
     sort_order: data.sort_order || 0
   })
@@ -34,7 +33,7 @@ export async function createLembaga(data: { name: string; sort_order: number }) 
 
 export async function updateLembaga(id: string, data: { name: string; sort_order: number }) {
   const supabase = await createClient()
-  const { error } = await supabase.from('lembaga').update({
+  const { error } = await (supabase.from('lembaga') as any).update({
     name: data.name,
     sort_order: data.sort_order || 0
   }).eq('id', id)
@@ -49,7 +48,7 @@ export async function updateLembaga(id: string, data: { name: string; sort_order
 
 export async function deleteLembaga(id: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('lembaga').delete().eq('id', id)
+  const { error } = await (supabase.from('lembaga') as any).delete().eq('id', id)
 
   if (error) {
     return { success: false, error: error.message }

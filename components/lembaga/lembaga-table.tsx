@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { LembagaForm } from './lembaga-form'
 import { deleteLembaga } from '@/app/actions/lembaga'
@@ -31,13 +31,11 @@ export function LembagaTable({ lembagas }: LembagaTableProps) {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold tracking-tight">Daftar Lembaga</h2>
         
+        <Button onClick={() => setIsAddOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Tambah Lembaga
+        </Button>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Lembaga
-            </Button>
-          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Tambah Lembaga Baru</DialogTitle>
