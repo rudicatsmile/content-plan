@@ -44,9 +44,14 @@ export async function Navbar() {
                 Dashboard
               </Link>
               {(profileData?.role === 'super_admin' || profileData?.role === 'media_admin') && (
-                <Link href="/dashboard/users" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Pengelolaan User
-                </Link>
+                <>
+                  <Link href="/dashboard/users" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Pengelolaan User
+                  </Link>
+                  <Link href="/dashboard/lembaga" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Lembaga
+                  </Link>
+                </>
               )}
             </div>
           </div>
